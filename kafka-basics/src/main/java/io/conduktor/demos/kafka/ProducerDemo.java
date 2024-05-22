@@ -1,6 +1,7 @@
 package io.conduktor.demos.kafka;
 
 
+import io.conduktor.demos.builder.ProducerBuilder;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -10,24 +11,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-public class ProducerDemo {
+public class ProducerDemo implements IProducer{
 
     private static final Logger log = LoggerFactory.getLogger(ProducerDemo.class.getSimpleName());
-    public static void start(){
-        log.info("Hello world!");
 
-        //create Producer Properties
-        Properties properties = new Properties();
+    @Override
+    public void sendMessage(){
+        log.info("I am a Kafka Producer!");
 
-        //connect to localhost
-        properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-
-        //set producer properties
-        properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-
-        //create the Producer
-        KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
+        KafkaProducer<String, String> producer = ProducerBuilder.build();
 
         //create a Producer record
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>("demo_java", "Hello World");
