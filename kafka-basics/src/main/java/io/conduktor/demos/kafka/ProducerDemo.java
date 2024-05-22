@@ -2,6 +2,7 @@ package io.conduktor.demos.kafka;
 
 
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
@@ -19,11 +20,11 @@ public class ProducerDemo {
         Properties properties = new Properties();
 
         //connect to localhost
-        properties.setProperty("bootstrap.servers", "localhost:9092");
+        properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
 
         //set producer properties
-        properties.setProperty("key.serializer", StringSerializer.class.getName());
-        properties.setProperty("value.serializer", StringSerializer.class.getName());
+        properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
         //create the Producer
         KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
@@ -34,8 +35,10 @@ public class ProducerDemo {
         //send data
         producer.send(producerRecord);
 
-        //flush and close the producer
+        //tell the producer to send all data and block until done -- synchronous
         producer.flush();
+
+        //flush and close the producer
         producer.close();
     }
 }
