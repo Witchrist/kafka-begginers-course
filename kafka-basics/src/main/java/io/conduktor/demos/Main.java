@@ -1,12 +1,12 @@
 package io.conduktor.demos;
 
 import io.conduktor.demos.kafka.IProducer;
-import io.conduktor.demos.kafka.ProducerDemoWithCallback;
+import io.conduktor.demos.kafka.ProducerDemoKeys;
 
 public class Main {
     public static void main(String[] args) {
 
-        IProducer producer = new ProducerDemoWithCallback();
+        IProducer producer = new ProducerDemoKeys();
 
         producer.sendMessage();
     }
