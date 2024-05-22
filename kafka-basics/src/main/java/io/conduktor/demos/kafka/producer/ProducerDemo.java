@@ -1,15 +1,13 @@
-package io.conduktor.demos.kafka;
+package io.conduktor.demos.kafka.producer;
 
 
 import io.conduktor.demos.builder.ProducerBuilder;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Properties;
+import static io.conduktor.demos.constants.KafkaConstants.TOPIC;
 
 public class ProducerDemo implements IProducer{
 
@@ -22,7 +20,7 @@ public class ProducerDemo implements IProducer{
         KafkaProducer<String, String> producer = ProducerBuilder.build();
 
         //create a Producer record
-        ProducerRecord<String, String> producerRecord = new ProducerRecord<>("demo_java", "Hello World");
+        ProducerRecord<String, String> producerRecord = new ProducerRecord<>(TOPIC, "Hello World");
 
         //send data
         producer.send(producerRecord);

@@ -1,13 +1,15 @@
 package io.conduktor.demos;
 
-import io.conduktor.demos.kafka.IProducer;
-import io.conduktor.demos.kafka.ProducerDemoKeys;
+import io.conduktor.demos.kafka.consumer.ConsumerDemo;
+import io.conduktor.demos.kafka.consumer.IConsumer;
 
 public class Main {
     public static void main(String[] args) {
 
-        IProducer producer = new ProducerDemoKeys();
+//        IProducer producer = new ProducerDemoKeys();
+//        producer.sendMessage();
 
-        producer.sendMessage();
+        IConsumer consumer = new ConsumerDemo();
+        consumer.receiveMessage();
     }
 }

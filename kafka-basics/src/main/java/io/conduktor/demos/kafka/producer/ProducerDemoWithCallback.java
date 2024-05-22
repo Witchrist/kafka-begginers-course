@@ -1,4 +1,4 @@
-package io.conduktor.demos.kafka;
+package io.conduktor.demos.kafka.producer;
 
 
 import io.conduktor.demos.builder.ProducerBuilder;
@@ -9,9 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-public class ProducerDemoKeys implements IProducer{
+import static io.conduktor.demos.constants.KafkaConstants.TOPIC;
 
-    private static final Logger log = LoggerFactory.getLogger(ProducerDemoKeys.class.getSimpleName());
+public class ProducerDemoWithCallback implements IProducer{
+
+    private static final Logger log = LoggerFactory.getLogger(ProducerDemoWithCallback.class.getSimpleName());
 
     @Override
     public void sendMessage(){
@@ -19,16 +21,12 @@ public class ProducerDemoKeys implements IProducer{
 
         KafkaProducer<String, String> producer = ProducerBuilder.build();
 
-        for(int j = 0; j<2; j++) {
+        for(int j = 0; j<10; j++) {
 
             System.out.println("---------------------------------------------------------");
 
             for (int i = 0; i < 5; i++) {
-                String topic = "demo_java";
-                String key = "id_" + i;
-                String value = "Hello World " + i;
-
-                this.sendMessage(producer, createMessage(topic, key, value), key);
+                this.sendMessage(producer, createMessage(i));
             }
 
             try {
@@ -45,13 +43,13 @@ public class ProducerDemoKeys implements IProducer{
         producer.close();
     }
 
-    private ProducerRecord createMessage(String topic, String key, String value){
+    private ProducerRecord createMessage(int messageNumber){
 
         //create a Producer record
-        return new ProducerRecord<>(topic, key, value);
+        return new ProducerRecord<>(TOPIC, "Hello World " + messageNumber);
     }
 
-    private void sendMessage(KafkaProducer<String, String> producer, ProducerRecord producerRecord, String key){
+    private void sendMessage(KafkaProducer<String, String> producer, ProducerRecord producerRecord){
 
         //send data
         producer.send(producerRecord, (metadata, e) -> {
@@ -60,7 +58,12 @@ public class ProducerDemoKeys implements IProducer{
             if (Objects.isNull(e)) {
 
                 //the record was successfully sent
-                log.info("Key: " + key + "  |   Partition: " + metadata.partition());
+                log.info("Received new metadata " +
+                        "\nTopic: " + metadata.topic() +
+                        "\nPartition: " + metadata.partition() +
+                        "\nOffset: " + metadata.offset() +
+                        "\nTimestamp: " + metadata.timestamp()
+                );
             } else {
                 log.error("Error while producing", e);
             }

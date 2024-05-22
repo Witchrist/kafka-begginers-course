@@ -1,19 +1,19 @@
-package io.conduktor.demos.kafka;
+package io.conduktor.demos.kafka.producer;
 
 
 import io.conduktor.demos.builder.ProducerBuilder;
-import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-public class ProducerDemoWithCallback implements IProducer{
+import static io.conduktor.demos.constants.KafkaConstants.TOPIC;
 
-    private static final Logger log = LoggerFactory.getLogger(ProducerDemoWithCallback.class.getSimpleName());
+public class ProducerDemoKeys implements IProducer{
+
+    private static final Logger log = LoggerFactory.getLogger(ProducerDemoKeys.class.getSimpleName());
 
     @Override
     public void sendMessage(){
@@ -21,12 +21,16 @@ public class ProducerDemoWithCallback implements IProducer{
 
         KafkaProducer<String, String> producer = ProducerBuilder.build();
 
-        for(int j = 0; j<10; j++) {
+        for(int j = 0; j<2; j++) {
 
             System.out.println("---------------------------------------------------------");
 
             for (int i = 0; i < 5; i++) {
-                this.sendMessage(producer, createMessage(i));
+                String topic = TOPIC;
+                String key = "id_" + i;
+                String value = "Hello World " + i;
+
+                this.sendMessage(producer, createMessage(topic, key, value), key);
             }
 
             try {
@@ -43,13 +47,13 @@ public class ProducerDemoWithCallback implements IProducer{
         producer.close();
     }
 
-    private ProducerRecord createMessage(int messageNumber){
+    private ProducerRecord createMessage(String topic, String key, String value){
 
         //create a Producer record
-        return new ProducerRecord<>("demo_java", "Hello World " + messageNumber);
+        return new ProducerRecord<>(topic, key, value);
     }
 
-    private void sendMessage(KafkaProducer<String, String> producer, ProducerRecord producerRecord){
+    private void sendMessage(KafkaProducer<String, String> producer, ProducerRecord producerRecord, String key){
 
         //send data
         producer.send(producerRecord, (metadata, e) -> {
@@ -58,12 +62,7 @@ public class ProducerDemoWithCallback implements IProducer{
             if (Objects.isNull(e)) {
 
                 //the record was successfully sent
-                log.info("Received new metadata " +
-                        "\nTopic: " + metadata.topic() +
-                        "\nPartition: " + metadata.partition() +
-                        "\nOffset: " + metadata.offset() +
-                        "\nTimestamp: " + metadata.timestamp()
-                );
+                log.info("Key: " + key + "  |   Partition: " + metadata.partition());
             } else {
                 log.error("Error while producing", e);
             }
