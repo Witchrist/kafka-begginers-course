@@ -1,6 +1,7 @@
 package io.conduktor.demos.builder;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.CooperativeStickyAssignor;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
@@ -30,6 +31,11 @@ public class ConsumerBuilder {
             latest -> reads only the new messages
         */
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+
+        properties.setProperty(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
+
+        //Strategy for static assignments
+        //properties.setProperty(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG, ".........");
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
 

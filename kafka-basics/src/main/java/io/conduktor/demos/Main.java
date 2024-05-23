@@ -1,6 +1,6 @@
 package io.conduktor.demos;
 
-import io.conduktor.demos.kafka.consumer.ConsumerDemoWithShutdown;
+import io.conduktor.demos.kafka.consumer.ConsumerDemoCooperative;
 import io.conduktor.demos.kafka.consumer.IConsumer;
 
 public class Main {
@@ -9,7 +9,7 @@ public class Main {
 //        IProducer producer = new ProducerDemoKeys();
 //        producer.sendMessage();
 
-        IConsumer consumer = new ConsumerDemoWithShutdown();
+        IConsumer consumer = new ConsumerDemoCooperative();
         consumer.receiveMessage();
     }
 }
