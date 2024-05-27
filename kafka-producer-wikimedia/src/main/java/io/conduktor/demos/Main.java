@@ -1,7 +1,15 @@
 package io.conduktor.demos;
 
+import io.conduktor.demos.kafka.wikimedia.WikimediaChangesProducer;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        WikimediaChangesProducer wikimedia = new WikimediaChangesProducer();
+        
+        try {
+            wikimedia.start();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
