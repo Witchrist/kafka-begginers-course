@@ -10,11 +10,16 @@ import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestClient;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.CreateIndexRequest;
+import org.opensearch.client.indices.GetIndexRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
 
 public class ClientUtil {
+
+    private final static Logger log = LoggerFactory.getLogger(ClientUtil.class.getSimpleName());
 
     public static RestHighLevelClient createOpenSearchClient() {
         String connString = "http://localhost:9200";
@@ -49,9 +54,17 @@ public class ClientUtil {
     }
 
     public static void createIndexRequest(RestHighLevelClient openSearchClient) throws IOException {
-        try(openSearchClient) {
-            CreateIndexRequest createIndexRequest = new CreateIndexRequest("wikimedia");
-            openSearchClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
+
+        boolean indexExists = openSearchClient.indices().exists(new GetIndexRequest("wikimedia"), RequestOptions.DEFAULT);
+
+        if(indexExists){
+            log.info("The Wikimedia Index already exists");
+        } else {
+            try (openSearchClient) {
+                CreateIndexRequest createIndexRequest = new CreateIndexRequest("wikimedia");
+                openSearchClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
+                log.info("The Wikimedia Index has been created");
+            }
         }
     }
 }
