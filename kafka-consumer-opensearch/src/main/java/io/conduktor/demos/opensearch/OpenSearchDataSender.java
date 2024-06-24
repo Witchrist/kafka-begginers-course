@@ -30,7 +30,7 @@ public class OpenSearchDataSender {
 
             records.forEach(record -> {
                 //Extracting the id of the record to make the application idempotence
-                //when we get duplicated messages, our application will update the message instead of creating a new one
+                //when we get duplicated messages, elasticsearch will update the message instead of creating a new one
                 String id = extractId(record.value());
                 //Send the records into OpenSearch
                 IndexRequest indexRequest = new IndexRequest("wikimedia")
@@ -45,6 +45,10 @@ public class OpenSearchDataSender {
                     log.error(e.getMessage());
                 }
             });
+            
+            //commit offsets after the batch is consumed
+            consumer.commitSync();
+            log.info("offsets have been committed");
         }
     }
 
