@@ -1,5 +1,6 @@
 package io.conduktor.demos.opensearch;
 
+import com.google.gson.JsonParser;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.opensearch.action.index.IndexRequest;
@@ -28,9 +29,13 @@ public class OpenSearchDataSender {
             log.info("Received: "+ recordsCount +" record(s)");
 
             records.forEach(record -> {
+                //Extracting the id of the record to make the application idempotence
+                //when we get duplicated messages, our application will update the message instead of creating a new one
+                String id = extractId(record.value());
                 //Send the records into OpenSearch
                 IndexRequest indexRequest = new IndexRequest("wikimedia")
-                        .source(record.value(), XContentType.JSON);
+                        .source(record.value(), XContentType.JSON)
+                        .id(id);
 
                 try {
                     IndexResponse indexResponse = openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
@@ -41,5 +46,14 @@ public class OpenSearchDataSender {
                 }
             });
         }
+    }
+
+    private String extractId(String recordValue) {
+        return JsonParser.parseString(recordValue)
+                .getAsJsonObject()
+                .get("meta")
+                .getAsJsonObject()
+                .get("id")
+                .getAsString();
     }
 }
