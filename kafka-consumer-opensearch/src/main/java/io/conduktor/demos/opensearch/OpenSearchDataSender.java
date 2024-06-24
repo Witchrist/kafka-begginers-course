@@ -3,8 +3,9 @@ package io.conduktor.demos.opensearch;
 import com.google.gson.JsonParser;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.index.IndexRequest;
-import org.opensearch.action.index.IndexResponse;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.xcontent.XContentType;
@@ -28,6 +29,7 @@ public class OpenSearchDataSender {
             int recordsCount = records.count();
             log.info("Received: "+ recordsCount +" record(s)");
 
+            BulkRequest bulkRequest = new BulkRequest();
             records.forEach(record -> {
                 //Extracting the id of the record to make the application idempotence
                 //when we get duplicated messages, elasticsearch will update the message instead of creating a new one
@@ -37,15 +39,21 @@ public class OpenSearchDataSender {
                         .source(record.value(), XContentType.JSON)
                         .id(id);
 
-                try {
-                    IndexResponse indexResponse = openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
+                bulkRequest.add(indexRequest);
 
-                    log.info(indexResponse.getId());
+                try {
+                    if(bulkRequest.numberOfActions()>0) {
+                        BulkResponse bulkResponse = openSearchClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+                        log.info("Inserted: " + bulkResponse.getItems().length + "record(s)");
+
+                        Thread.sleep(1000);
+                    }
                 } catch (Exception e) {
                     log.error(e.getMessage());
                 }
             });
-            
+
+
             //commit offsets after the batch is consumed
             consumer.commitSync();
             log.info("offsets have been committed");
