@@ -3,6 +3,7 @@ package io.conduktor.demos.opensearch;
 import com.google.gson.JsonParser;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.errors.WakeupException;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.index.IndexRequest;
@@ -41,15 +42,19 @@ public class OpenSearchDataSender {
 
                 bulkRequest.add(indexRequest);
 
-                try {
+                try(openSearchClient; consumer) {
                     if(bulkRequest.numberOfActions()>0) {
                         BulkResponse bulkResponse = openSearchClient.bulk(bulkRequest, RequestOptions.DEFAULT);
                         log.info("Inserted: " + bulkResponse.getItems().length + "record(s)");
 
                         Thread.sleep(1000);
                     }
+                } catch (WakeupException e) {
+                    log.info("Consumer is starting to shut down");
                 } catch (Exception e) {
                     log.error(e.getMessage());
+                } finally {
+                    log.info("the consumer is gracefully shut down");
                 }
             });
 
